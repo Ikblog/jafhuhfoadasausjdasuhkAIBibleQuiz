@@ -773,10 +773,10 @@ The "correct" field should be the index (0-3) of the correct answer. Make sure q
             const accuracy = Math.round((score / questions.length) * 100);
             const incorrect = questions.length - score;
             
-            document.getElementById('final-score').textContent = ${score}/${questions.length};
+            document.getElementById('final-score').textContent = `${score}/${questions.length}`;
             document.getElementById('correct-answers').textContent = score;
             document.getElementById('incorrect-answers').textContent = incorrect;
-            document.getElementById('accuracy').textContent = ${accuracy}%;
+            document.getElementById('accuracy').textContent = `${accuracy}%`;
         }
 
         function restartQuiz() {
@@ -798,3 +798,4 @@ The "correct" field should be the index (0-3) of the correct answer. Make sure q
         }
     </script>
 </body>
+</html>
