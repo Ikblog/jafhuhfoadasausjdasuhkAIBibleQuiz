@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bible Quiz - Genesis</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            background-color: #1a2a3a;
+            color: #f8f8f8;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            /*background-image: url('https://images.unsplash.com/photo-1531297484001-80022131f5a1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');*/
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+        }
+
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.7);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        #quiz-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        #header {
+            margin-bottom: 30px;
+        }
+
+        #title {
+            font-size: 2.5em;
+            color: #f8d64e;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin-bottom: 10px;
+        }
+
+        #subtitle {
+            font-size: 1.2em;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        #level-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .level-btn {
+            background-color: #3a5a78;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            margin: 0 5px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .level-btn:hover {
+            background-color: #4a7ba6;
+            transform: scale(1.05);
+        }
+
+        .level-btn.active {
+            background-color: #f8d64e;
+            color: #1a2a3a;
+            font-weight: bold;
+        }
+
+        #level-display {
+            font-size: 1.8em;
+            color: #f8d64e;
+            margin: 15px 0;
+            text-transform: uppercase;
+        }
+
+        #question-box {
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 25px;
+            border-radius: 10px;
+            font-size: 1.4em;
+            margin: 20px auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .answer-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px auto;
+        }
+
+        .answer-box {
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .answer-box:hover {
+            background-color: #f8d64e;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .answer-box.correct {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .answer-box.incorrect {
+            background-color: #F44336;
+            color: white;
+        }
+
+        #timer-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        #timer {
+            font-size: 1.5em;
+            color: #FF5733;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        #timer-icon {
+            margin-right: 10px;
+        }
+
+        #progress-container {
+            margin: 20px 0;
+        }
+
+        #progress {
+            font-size: 1.2em;
+            color: #ddd;
+            margin-bottom: 10px;
+        }
+
+        #progress-bar {
+            width: 100%;
+            height: 15px;
+            background-color: #333;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #progress-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #f8d64e, #f8a64e);
+            transition: width 0.3s ease;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.8);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+            color: #333;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+            animation: modalopen 0.5s;
+        }
+
+        @keyframes modalopen {
+            from {opacity: 0; transform: translateY(-50px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+
+        #congratulations {
+            font-size: 2em;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+
+        #encouragement {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        #score-display {
+            font-size: 1.8em;
+            margin-bottom: 30px;
+            color: #1a2a3a;
+        }
+
+        .modal-btn {
+            background-color: #3a5a78;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            margin: 0 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s;
+        }
+
+        .modal-btn:hover {
+            background-color: #4a7ba6;
+            transform: scale(1.05);
+        }
+
+        #reference {
+            font-style: italic;
+            color: #777;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .answer-container {
+                grid-template-columns: 1fr;
+            }
+            
+            #question-box {
+                font-size: 1.2em;
+                padding: 15px;
+            }
+            
+            .answer-box {
+                font-size: 1em;
+            }
+            
+            #level-container {
+                flex-wrap: wrap;
+            }
+            
+            .level-btn {
+                margin: 5px;
+                padding: 6px 12px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay">
+        <div id="quiz-container">
+            <div id="header">
+                <div id="title">Bible Quiz</div>
+                <div id="subtitle">Test Your Knowledge of Genesis</div>
+            </div>
+            
+            <div id="level-container">
+                <button class="level-btn" onclick="setLevel(1)">1</button>
+                <button class="level-btn" onclick="setLevel(2)">2</button>
+                <button class="level-btn" onclick="setLevel(3)">3</button>
+                <button class="level-btn" onclick="setLevel(4)">4</button>
+                <button class="level-btn" onclick="setLevel(5)">5</button>
+                <button class="level-btn" onclick="setLevel(6)">6</button>
+                <button class="level-btn" onclick="setLevel(7)">7</button>
+                <button class="level-btn" onclick="setLevel(8)">8</button>
+                <button class="level-btn" onclick="setLevel(9)">9</button>
+                <button class="level-btn" onclick="setLevel(10)">10</button>
+            </div>
+            
+            <div id="level-display">LEVEL 1</div>
+            
+            <div id="question-box">Select a level to begin the quiz</div>
+            
+            <div id="reference"></div>
+            
+            <div id="timer-container">
+                <div id="timer">
+                    <span id="timer-icon">⏱️</span>
+                    <span id="time-left">30</span> seconds
+                </div>
+            </div>
+            
+            <div id="progress-container">
+                <div id="progress">Question <span id="current-question">0</span> of <span id="total-questions">0</span></div>
+                <div id="progress-bar">
+                    <div id="progress-bar-fill"></div>
+                </div>
+            </div>
+            
+            <div class="answer-container">
+                <div class="answer-box" onclick="checkAnswer(this)"></div>
+                <div class="answer-box" onclick="checkAnswer(this)"></div>
+                <div class="answer-box" onclick="checkAnswer(this)"></div>
+                <div class="answer-box" onclick="checkAnswer(this)"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- The Modal -->
+    <div id="scoreModal" class="modal">
+        <div class="modal-content" id="modal-content">
+            <h2 id="congratulations"></h2>
+            <p id="score-display"></p>
+            <p id="encouragement"></p>
+            <button class="modal-btn" id="next-level-btn" onclick="nextLevel()">Next Level</button>
+            <button class="modal-btn" id="retry-btn" onclick="retryQuiz()">Retry Level</button>
+            <button class="modal-btn" id="close-btn" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 0;
+        let score = 0;
+        let timeLeft = 30;
+        let timer;
+        let currentLevel = 1;
+        let questions = [];
+        let totalQuestions = 0;
+        
+        // Bible questions organized by level (Genesis only)
+        const allQuestions = {
+            1: [
+                { question: "In the beginning, what did God create first?", 
+                  answers: ["Light", "The heavens and the earth", "Man", "Animals"], 
+                  correct: 1,
+                  reference: "Genesis 1:1" },
+                { question: "On which day did God create the sun, moon, and stars?", 
+                  answers: ["First day", "Second day", "Third day", "Fourth day"], 
+                  correct: 3,
+                  reference: "Genesis 1:14-19" },
+                { question: "What was the name of the first man God created?", 
+                  answers: ["Noah", "Abraham", "Adam", "Moses"], 
+                  correct: 2,
+                  reference: "Genesis 2:7" },
+                { question: "From which part of Adam's body did God create Eve?", 
+                  answers: ["Foot", "Rib", "Head", "Hand"], 
+                  correct: 1,
+                  reference: "Genesis 2:21-22" },
+                { question: "What was the name of the garden where Adam and Eve lived?", 
+                  answers: ["Garden of Gethsemane", "Garden of Babylon", "Garden of Eden", "Garden of Paradise"], 
+                  correct: 2,
+                  reference: "Genesis 2:8" }
+            ],
+            2: [
+                { question: "What was the name of the tree that Adam and Eve were forbidden to eat from?", 
+                  answers: ["Tree of Knowledge of Good and Evil", "Tree of Life", "Tree of Wisdom", "Tree of Eternal Life"], 
+                  correct: 0,
+                  reference: "Genesis 2:17" },
+                { question: "Who tempted Eve to eat the forbidden fruit?", 
+                  answers: ["A lion", "An angel", "A serpent", "Another human"], 
+                  correct: 2,
+                  reference: "Genesis 3:1" },
+                { question: "What did Adam and Eve realize after eating the forbidden fruit?", 
+                  answers: ["They were naked", "They were powerful", "They could fly", "They were invisible"], 
+                  correct: 0,
+                  reference: "Genesis 3:7" },
+                { question: "What did God use to clothe Adam and Eve after they sinned?", 
+                  answers: ["Leaves", "Animal skins", "Linen", "Wool"], 
+                  correct: 1,
+                  reference: "Genesis 3:21" },
+                { question: "Who was the first son of Adam and Eve?", 
+                  answers: ["Abel", "Cain", "Seth", "Enosh"], 
+                  correct: 1,
+                  reference: "Genesis 4:1" }
+            ],
+            3: [
+                { question: "What was Cain's occupation?", 
+                  answers: ["Farmer", "Shepherd", "Blacksmith", "Fisherman"], 
+                  correct: 0,
+                  reference: "Genesis 4:2" },
+                { question: "What was Abel's occupation?", 
+                  answers: ["Farmer", "Shepherd", "Blacksmith", "Fisherman"], 
+                  correct: 1,
+                  reference: "Genesis 4:2" },
+                { question: "Why did God reject Cain's offering?", 
+                  answers: ["It was too small", "It wasn't from the heart", "It was the wrong type", "The Bible doesn't say"], 
+                  correct: 3,
+                  reference: "Genesis 4:3-7" },
+                { question: "What did Cain do to Abel?", 
+                  answers: ["He blessed him", "He killed him", "He sold him", "He ignored him"], 
+                  correct: 1,
+                  reference: "Genesis 4:8" },
+                { question: "What mark did God put on Cain to protect him?", 
+                  answers: ["A cross", "A star", "A seal", "The Bible doesn't specify"], 
+                  correct: 3,
+                  reference: "Genesis 4:15" }
+            ],
+            4: [
+                { question: "How many sons did Adam and Eve have according to Genesis 5:4?", 
+                  answers: ["2", "3", "Many", "The Bible doesn't say"], 
+                  correct: 2,
+                  reference: "Genesis 5:4" },
+                { question: "How long did Methuselah live?", 
+                  answers: ["365 years", "777 years", "969 years", "1000 years"], 
+                  correct: 2,
+                  reference: "Genesis 5:27" },
+                { question: "Why did God decide to send the flood in Noah's time?", 
+                  answers: ["Because of human wickedness", "Because of animal overpopulation", "Because of climate change", "Because Noah asked for it"], 
+                  correct: 0,
+                  reference: "Genesis 6:5-7" },
+                { question: "How many of each clean animal did Noah take on the ark?", 
+                  answers: ["2", "7", "12", "14"], 
+                  correct: 1,
+                  reference: "Genesis 7:2" },
+                { question: "How long did it rain during the flood?", 
+                  answers: ["7 days", "40 days", "150 days", "1 year"], 
+                  correct: 1,
+                  reference: "Genesis 7:12" }
+            ],
+            5: [
+                { question: "What was the first bird Noah sent out from the ark?", 
+                  answers: ["Dove", "Raven", "Eagle", "Sparrow"], 
+                  correct: 1,
+                  reference: "Genesis 8:7" },
+                { question: "What was the sign of God's covenant with Noah after the flood?", 
+                  answers: ["A cross", "A rainbow", "A star", "A dove"], 
+                  correct: 1,
+                  reference: "Genesis 9:13" },
+                { question: "What did Noah plant after the flood that caused him trouble?", 
+                  answers: ["Corn", "Grapes", "Olive trees", "Wheat"], 
+                  correct: 1,
+                  reference: "Genesis 9:20-21" },
+                { question: "What was the name of the tower people tried to build to reach heaven?", 
+                  answers: ["Tower of David", "Tower of Babel", "Tower of Babylon", "Tower of Heaven"], 
+                  correct: 1,
+                  reference: "Genesis 11:4" },
+                { question: "How did God confuse the people building the tower?", 
+                  answers: ["By making them blind", "By giving them different languages", "By sending angels", "By destroying the tower"], 
+                  correct: 1,
+                  reference: "Genesis 11:7" }
+            ],
+            6: [
+                { question: "What was Abram's original homeland?", 
+                  answers: ["Egypt", "Canaan", "Ur of the Chaldeans", "Haran"], 
+                  correct: 2,
+                  reference: "Genesis 11:31" },
+                { question: "What was the name of Abram's wife?", 
+                  answers: ["Sarah", "Rebekah", "Rachel", "Leah"], 
+                  correct: 0,
+                  reference: "Genesis 11:29" },
+                { question: "Why did Abram and Sarai go to Egypt?", 
+                  answers: ["Because God told them to", "Because of a famine", "To visit family", "To trade goods"], 
+                  correct: 1,
+                  reference: "Genesis 12:10" },
+                { question: "What did Abram tell the Egyptians about Sarai?", 
+                  answers: ["That she was his sister", "That she was his daughter", "That she was his servant", "That she was his wife"], 
+                  correct: 0,
+                  reference: "Genesis 12:13" },
+                { question: "Who was Abram's nephew that traveled with him?", 
+                  answers: ["Lot", "Isaac", "Ishmael", "Eliezer"], 
+                  correct: 0,
+                  reference: "Genesis 12:5" }
+            ],
+            7: [
+                { question: "What did Melchizedek bring out to Abram after his victory?", 
+                  answers: ["Water and oil", "Bread and wine", "Gold and silver", "Fruits and vegetables"], 
+                  correct: 1,
+                  reference: "Genesis 14:18" },
+                { question: "How old was Abram when God promised him a son?", 
+                  answers: ["75", "85", "99", "100"], 
+                  correct: 0,
+                  reference: "Genesis 12:4, 15:4" },
+                { question: "What was the sign of God's covenant with Abraham?", 
+                  answers: ["Rainbow", "Circumcision", "Sacrifice", "A star"], 
+                  correct: 1,
+                  reference: "Genesis 17:10-11" },
+                { question: "Who was Abraham's first son?", 
+                  answers: ["Isaac", "Ishmael", "Lot", "Eliezer"], 
+                  correct: 1,
+                  reference: "Genesis 16:15" },
+                { question: "How old was Sarah when Isaac was born?", 
+                  answers: ["65", "75", "90", "100"], 
+                  correct: 2,
+                  reference: "Genesis 17:17, 21:5" }
+            ],
+            8: [
+                { question: "What did God ask Abraham to sacrifice?", 
+                  answers: ["His firstborn son", "His wife", "All his livestock", "Himself"], 
+                  correct: 0,
+                  reference: "Genesis 22:2" },
+                { question: "Where did this sacrifice take place?", 
+                  answers: ["Mount Sinai", "Mount Moriah", "Mount Zion", "Mount Horeb"], 
+                  correct: 1,
+                  reference: "Genesis 22:2" },
+                { question: "What stopped Abraham from sacrificing Isaac?", 
+                  answers: ["An angel", "A voice from heaven", "A ram caught in a thicket", "All of the above"], 
+                  correct: 3,
+                  reference: "Genesis 22:11-13" },
+                { question: "Who did Abraham send to find a wife for Isaac?", 
+                  answers: ["Lot", "Ishmael", "Eliezer", "Melchizedek"], 
+                  correct: 2,
+                  reference: "Genesis 24:2-4" },
+                { question: "Where did Isaac's wife Rebekah come from?", 
+                  answers: ["Egypt", "Canaan", "Mesopotamia", "Philistia"], 
+                  correct: 2,
+                  reference: "Genesis 24:10" }
+            ],
+            9: [
+                { question: "What were the names of Isaac and Rebekah's twin sons?", 
+                  answers: ["Jacob and Joseph", "Esau and Jacob", "Judah and Benjamin", "Levi and Simeon"], 
+                  correct: 1,
+                  reference: "Genesis 25:24-26" },
+                { question: "What was Esau's occupation?", 
+                  answers: ["Farmer", "Shepherd", "Hunter", "Blacksmith"], 
+                  correct: 2,
+                  reference: "Genesis 25:27" },
+                { question: "What did Jacob give Esau in exchange for his birthright?", 
+                  answers: ["Gold", "Livestock", "Bread and lentil stew", "A blessing"], 
+                  correct: 2,
+                  reference: "Genesis 25:29-34" },
+                { question: "How did Jacob obtain Isaac's blessing?", 
+                  answers: ["By being the firstborn", "By tricking Isaac", "By earning it", "Isaac refused to bless him"], 
+                  correct: 1,
+                  reference: "Genesis 27:1-29" },
+                { question: "What did Jacob see in his dream at Bethel?", 
+                  answers: ["A burning bush", "A ladder to heaven", "A chariot of fire", "Angels singing"], 
+                  correct: 1,
+                  reference: "Genesis 28:12" }
+            ],
+            10: [
+                { question: "How many sons did Jacob have?", 
+                  answers: ["7", "10", "12", "15"], 
+                  correct: 2,
+                  reference: "Genesis 35:22-26" },
+                { question: "Which son was Jacob's favorite?", 
+                  answers: ["Reuben", "Judah", "Joseph", "Benjamin"], 
+                  correct: 2,
+                  reference: "Genesis 37:3" },
+                { question: "What did Joseph's brothers do to him?", 
+                  answers: ["Sent him to school", "Made him work in the fields", "Sold him into slavery", "Killed him"], 
+                  correct: 2,
+                  reference: "Genesis 37:28" },
+                { question: "Where was Joseph taken as a slave?", 
+                  answers: ["Egypt", "Babylon", "Assyria", "Canaan"], 
+                  correct: 0,
+                  reference: "Genesis 37:28, 39:1" },
+                { question: "What position did Joseph eventually attain in Egypt?", 
+                  answers: ["Head slave", "Priest", "Second in command", "King"], 
+                  correct: 2,
+                  reference: "Genesis 41:40-43" }
+            ]
+        };
+
+        function setLevel(level) {
+            currentLevel = level;
+            currentQuestion = 0;
+            score = 0;
+            
+            // Update active level button
+            const levelButtons = document.querySelectorAll('.level-btn');
+            levelButtons.forEach(button => {
+                button.classList.remove('active');
+                if (parseInt(button.textContent) === level) {
+                    button.classList.add('active');
+                }
+            });
+            
+            document.getElementById('level-display').textContent = `LEVEL ${level}`;
+            questions = [...allQuestions[level]];
+            totalQuestions = questions.length;
+            
+            // Shuffle questions but keep them in order for the level
+            shuffleQuestions(questions);
+            
+            loadQuestion();
+        }
+
+        function shuffleQuestions(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function loadQuestion() {
+            if (currentQuestion < totalQuestions) {
+                const q = questions[currentQuestion];
+                document.getElementById('question-box').textContent = q.question;
+                document.getElementById('reference').textContent = q.reference;
+                
+                let answerBoxes = document.getElementsByClassName('answer-box');
+                for (let i = 0; i < answerBoxes.length; i++) {
+                    answerBoxes[i].textContent = q.answers[i];
+                    answerBoxes[i].classList.remove('correct', 'incorrect');
+                }
+
+                document.getElementById('current-question').textContent = currentQuestion + 1;
+                document.getElementById('total-questions').textContent = totalQuestions;
+
+                let progressPercentage = ((currentQuestion) / totalQuestions) * 100;
+                document.getElementById('progress-bar-fill').style.width = progressPercentage + '%';
+
+                timeLeft = 30;
+                document.getElementById('time-left').textContent = timeLeft;
+                clearInterval(timer);
+                timer = setInterval(updateTimer, 1000);
+            } else {
+                displayResult();
+            }
+        }
+
+        function updateTimer() {
+            timeLeft--;
+            document.getElementById('time-left').textContent = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                currentQuestion++;
+                loadQuestion();
+            }
+        }
+
+        function checkAnswer(selectedAnswer) {
+            clearInterval(timer);
+            let answerBoxes = document.getElementsByClassName('answer-box');
+            let selectedIndex = Array.prototype.indexOf.call(answerBoxes, selectedAnswer);
+            const currentQ = questions[currentQuestion];
+
+            // Highlight correct and incorrect answers
+            for (let i = 0; i < answerBoxes.length; i++) {
+                if (i === currentQ.correct) {
+                    answerBoxes[i].classList.add('correct');
+                } else if (i === selectedIndex) {
+                    answerBoxes[i].classList.add('incorrect');
+                }
+            }
+
+            if (selectedIndex === currentQ.correct) {
+                score++;
+            }
+
+            // Move to next question after a delay
+            setTimeout(() => {
+                currentQuestion++;
+                loadQuestion();
+            }, 1500);
+        }
+
+        function displayResult() {
+            let modal = document.getElementById('scoreModal');
+            let congratulations = document.getElementById('congratulations');
+            let encouragement = document.getElementById('encouragement');
+            let scoreDisplay = document.getElementById('score-display');
+            let nextLevelBtn = document.getElementById('next-level-btn');
+            let retryBtn = document.getElementById('retry-btn');
+
+            scoreDisplay.textContent = `Your Score: ${score} / ${totalQuestions}`;
+
+            if (score < totalQuestions * 0.6) {
+                congratulations.textContent = "Keep Studying!";
+                encouragement.textContent = "Review Genesis and try again. 'All Scripture is God-breathed and useful for teaching' (2 Timothy 3:16)";
+                nextLevelBtn.style.display = "none";
+                retryBtn.style.display = "inline-block";
+            } else if (score < totalQuestions) {
+                congratulations.textContent = "Good Job!";
+                encouragement.textContent = "You're learning well! 'Your word is a lamp to my feet' (Psalm 119:105)";
+                nextLevelBtn.style.display = currentLevel < 10 ? "inline-block" : "none";
+                retryBtn.style.display = "inline-block";
+            } else {
+                congratulations.textContent = "Excellent!";
+                encouragement.textContent = "Perfect score! 'Blessed is the one who meditates on God's law' (Psalm 1:2)";
+                nextLevelBtn.style.display = currentLevel < 10 ? "inline-block" : "none";
+                retryBtn.style.display = "none";
+            }
+
+            modal.style.display = "block";
+        }
+
+        function retryQuiz() {
+            closeModal();
+            setLevel(currentLevel);
+        }
+
+        function nextLevel() {
+            closeModal();
+            if (currentLevel < 10) {
+                setLevel(currentLevel + 1);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('scoreModal').style.display = "none";
+        }
+
+        // Initialize with level 1
+        window.onload = function() {
+            setLevel(1);
+        };
+    </script>
+</body>
+</html>
