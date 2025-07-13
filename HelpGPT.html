@@ -4,7 +4,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChatGPT Mobile</title>
+    <title>HelpGPT Mobile</title>
     <style>
         * {
             box-sizing: border-box;
@@ -462,7 +462,7 @@
                 <button class="menu-button" id="menuButton">
                     <i class="fas fa-bars"></i>
                 </button>
-                <span class="header-title">ChatGPT</span>
+                <span class="header-title">HelpGPT</span>
             </div>
             <div class="header-right">
                 <button class="header-button" id="newChatButton">
@@ -557,7 +557,7 @@
             chatbox.innerHTML = `
                 <div class="welcome-message">
                     <div class="welcome-title">How can I help you today?</div>
-                    <div class="welcome-subtitle">I'm ChatGPT, a large language model by OpenAI. I can help with writing, analysis, math, coding, and more.</div>
+                    <div class="welcome-subtitle">I'm HelpGPT, I can help with writing, analysis, math, coding, and more.</div>
 
                     <div class="example-prompts">
                         <div class="example-prompt" onclick="useExample('Explain quantum computing in simple terms')">
@@ -566,9 +566,7 @@
                         <div class="example-prompt" onclick="useExample('Write a poem about nature')">
                             Write a poem about nature
                         </div>
-                        <div class="example-prompt" onclick="useExample('/image a futuristic city at sunset')">
-                            Generate an image of a futuristic city
-                        </div>
+                        
                     </div>
                 </div>
             `;
