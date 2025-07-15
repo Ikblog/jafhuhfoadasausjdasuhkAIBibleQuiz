@@ -4,7 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Bible Quiz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #4a6fa5;
+            --primary-dark: #3a5a8a;
+            --secondary: #e8b059;
+            --accent: #d16666;
+            --light: #f8f9fa;
+            --dark: #2c3e50;
+            --success: #4caf50;
+            --error: #f44336;
+            --warning: #ff9800;
+            --info: #2196f3;
+            --text: #333;
+            --text-light: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,107 +33,76 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #2c3e50 0%, #3498db 50%, #9b59b6 100%);
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
             min-height: 100vh;
-            color: #333;
-            overflow-x: hidden;
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 900px;
             margin: 0 auto;
-            padding: 20px;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 30px;
-            color: white;
+            margin-bottom: 40px;
             position: relative;
+            padding: 20px 0;
         }
 
-        .header::before {
+        .header::after {
             content: '';
             position: absolute;
-            top: -50px;
+            bottom: 0;
             left: 50%;
             transform: translateX(-50%);
             width: 100px;
-            height: 100px;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            border-radius: 50%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 2px;
         }
 
         .header h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            background: linear-gradient(45deg, #f39c12, #e74c3c, #9b59b6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: glow 3s ease-in-out infinite alternate;
-        }
-
-        @keyframes glow {
-            from { text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); }
-            to { text-shadow: 0 4px 30px rgba(255, 255, 255, 0.3); }
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+            font-weight: 700;
+            letter-spacing: -0.5px;
         }
 
         .header .subtitle {
-            font-size: 1.3em;
-            opacity: 0.9;
-            margin-bottom: 15px;
+            font-size: 1.2rem;
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto;
         }
 
         .bible-icon {
-            font-size: 4em;
+            font-size: 4rem;
             margin-bottom: 20px;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
+            color: var(--primary);
+            display: inline-block;
+            transform: rotate(-5deg);
         }
 
         .main-content {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 25px;
+            background: white;
+            border-radius: var(--border-radius);
             padding: 40px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(20px);
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 40px;
             position: relative;
             overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
-        .main-content::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-            animation: shimmer 4s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-        }
-
+        /* Quiz Setup */
         .quiz-setup {
-            position: relative;
-            z-index: 1;
-        }
-
-        .quiz-active {
-            position: relative;
-            z-index: 1;
-            display: none;
+            animation: fadeIn 0.5s ease-out;
         }
 
         .setup-form {
@@ -121,76 +111,66 @@
         }
 
         .form-group {
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 12px;
-            font-weight: 700;
-            color: #2c3e50;
-            font-size: 1.1em;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 1rem;
         }
 
         .form-group input,
         .form-group select {
             width: 100%;
-            padding: 18px 24px;
-            border: 3px solid #e1e8ed;
-            border-radius: 15px;
-            font-size: 16px;
-            transition: all 0.3s ease;
+            padding: 15px 20px;
+            border: 2px solid #e1e8ed;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
             background: white;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            font-family: 'Poppins', sans-serif;
         }
 
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
-            border-color: #3498db;
-            transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(52, 152, 219, 0.3);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
         }
 
         .start-quiz-btn {
-            background: linear-gradient(135deg, #3498db, #9b59b6);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
             border: none;
-            padding: 20px 50px;
-            border-radius: 30px;
-            font-size: 18px;
-            font-weight: 700;
+            padding: 16px 40px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: var(--transition);
+            display: block;
+            margin: 40px auto 20px;
             position: relative;
             overflow: hidden;
-            display: block;
-            margin: 30px auto;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .start-quiz-btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.3s ease, height 0.3s ease;
-        }
-
-        .start-quiz-btn:hover::before {
-            width: 300px;
-            height: 300px;
+            box-shadow: 0 4px 15px rgba(74, 111, 165, 0.3);
         }
 
         .start-quiz-btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(52, 152, 219, 0.5);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(74, 111, 165, 0.4);
+        }
+
+        .start-quiz-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Quiz Active */
+        .quiz-active {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
         }
 
         .quiz-header {
@@ -199,9 +179,10 @@
             align-items: center;
             margin-bottom: 30px;
             padding: 20px;
-            background: linear-gradient(135deg, #34495e, #2c3e50);
-            border-radius: 15px;
-            color: white;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .quiz-info {
@@ -215,64 +196,64 @@
         }
 
         .info-value {
-            font-size: 1.5em;
-            font-weight: bold;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
             display: block;
         }
 
         .info-label {
-            font-size: 0.9em;
-            opacity: 0.8;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 5px;
         }
 
         .timer {
-            font-size: 2em;
-            font-weight: bold;
-            color: #e74c3c;
-            background: rgba(255, 255, 255, 0.1);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            background: rgba(209, 102, 102, 0.1);
             padding: 10px 20px;
-            border-radius: 10px;
-            border: 2px solid rgba(231, 76, 60, 0.3);
-            animation: pulse 1s infinite;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+        .timer::before {
+            content: '⏱️';
+            font-size: 1.2rem;
         }
 
         .question-card {
             background: white;
-            border-radius: 20px;
+            border-radius: var(--border-radius);
             padding: 30px;
             margin-bottom: 30px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            border-left: 5px solid #3498db;
-            transition: all 0.3s ease;
-        }
-
-        .question-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            box-shadow: var(--box-shadow);
+            border-left: 4px solid var(--primary);
+            transition: var(--transition);
         }
 
         .question-number {
-            background: linear-gradient(135deg, #3498db, #9b59b6);
+            background: var(--primary);
             color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            font-weight: bold;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
             display: inline-block;
             margin-bottom: 20px;
         }
 
         .question-text {
-            font-size: 1.3em;
+            font-size: 1.3rem;
             font-weight: 600;
-            color: #2c3e50;
+            color: var(--dark);
             margin-bottom: 25px;
-            line-height: 1.6;
+            line-height: 1.5;
         }
 
         .options {
@@ -281,136 +262,197 @@
         }
 
         .option {
-            padding: 18px 24px;
+            padding: 16px 24px;
             border: 2px solid #e1e8ed;
-            border-radius: 12px;
+            border-radius: var(--border-radius);
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             background: white;
-            font-size: 16px;
+            font-size: 1rem;
             position: relative;
+            display: flex;
+            align-items: center;
         }
 
         .option:hover {
-            border-color: #3498db;
-            background: rgba(52, 152, 219, 0.05);
-            transform: translateX(5px);
+            border-color: var(--primary);
+            background: rgba(74, 111, 165, 0.05);
+        }
+
+        .option::before {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e1e8ed;
+            border-radius: 50%;
+            margin-right: 15px;
+            transition: var(--transition);
+            flex-shrink: 0;
         }
 
         .option.selected {
-            border-color: #3498db;
-            background: rgba(52, 152, 219, 0.1);
-            color: #2c3e50;
-            font-weight: 600;
+            border-color: var(--primary);
+            background: rgba(74, 111, 165, 0.05);
+        }
+
+        .option.selected::before {
+            border-color: var(--primary);
+            background-color: var(--primary);
         }
 
         .option.correct {
-            border-color: #27ae60;
-            background: rgba(39, 174, 96, 0.1);
-            color: #27ae60;
+            border-color: var(--success);
+            background: rgba(76, 175, 80, 0.05);
+        }
+
+        .option.correct::before {
+            border-color: var(--success);
+            background-color: var(--success);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z'/%3E%3C/svg%3E");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: 12px;
         }
 
         .option.incorrect {
-            border-color: #e74c3c;
-            background: rgba(231, 76, 60, 0.1);
-            color: #e74c3c;
+            border-color: var(--error);
+            background: rgba(244, 67, 54, 0.05);
+        }
+
+        .option.incorrect::before {
+            border-color: var(--error);
+            background-color: var(--error);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z'/%3E%3C/svg%3E");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: 12px;
         }
 
         .next-btn {
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            background: var(--primary);
             color: white;
             border: none;
-            padding: 15px 40px;
-            border-radius: 25px;
-            font-size: 16px;
+            padding: 14px 36px;
+            border-radius: 50px;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 25px;
-            display: none;
+            transition: var(--transition);
+            margin: 30px auto 0;
+            display: block;
+            box-shadow: 0 4px 15px rgba(74, 111, 165, 0.3);
         }
 
         .next-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(39, 174, 96, 0.4);
+            box-shadow: 0 8px 25px rgba(74, 111, 165, 0.4);
         }
 
+        .next-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Results */
         .results {
             display: none;
             text-align: center;
-            padding: 40px;
+            padding: 40px 20px;
+            animation: fadeIn 0.5s ease-out;
         }
 
         .results-title {
-            font-size: 2.5em;
-            color: #2c3e50;
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: var(--dark);
             margin-bottom: 30px;
-            font-weight: bold;
+            font-weight: 700;
         }
 
         .score-display {
-            font-size: 4em;
-            font-weight: bold;
-            background: linear-gradient(135deg, #f39c12, #e74c3c);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--primary);
             margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .score-display::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 2px;
         }
 
         .score-details {
             display: flex;
-            justify-content: space-around;
+            justify-content: center;
+            gap: 30px;
             margin: 40px 0;
+            flex-wrap: wrap;
         }
 
         .score-item {
             text-align: center;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            min-width: 150px;
         }
 
         .score-item-value {
-            font-size: 2em;
-            font-weight: bold;
-            color: #2c3e50;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
         }
 
         .score-item-label {
-            color: #7f8c8d;
-            margin-top: 5px;
+            color: var(--text-light);
+            margin-top: 10px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .restart-btn {
-            background: linear-gradient(135deg, #3498db, #9b59b6);
+            background: var(--primary);
             color: white;
             border: none;
-            padding: 18px 45px;
-            border-radius: 25px;
-            font-size: 16px;
+            padding: 16px 40px;
+            border-radius: 50px;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             margin-top: 30px;
+            box-shadow: 0 4px 15px rgba(74, 111, 165, 0.3);
         }
 
         .restart-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(52, 152, 219, 0.4);
+            box-shadow: 0 8px 25px rgba(74, 111, 165, 0.4);
         }
 
+        .restart-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Loading */
         .loading {
             text-align: center;
-            padding: 40px;
-            color: #7f8c8d;
-            font-size: 1.2em;
+            padding: 60px 20px;
+            color: var(--text-light);
+            font-size: 1.1rem;
         }
 
         .loading-spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
+            border: 4px solid rgba(74, 111, 165, 0.1);
+            border-top: 4px solid var(--primary);
             border-radius: 50%;
             width: 50px;
             height: 50px;
@@ -418,29 +460,36 @@
             margin: 20px auto;
         }
 
+        /* Error */
+        .error {
+            background: rgba(244, 67, 54, 0.1);
+            border: 2px solid var(--error);
+            color: var(--error);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
 
-        .error {
-            background: rgba(231, 76, 60, 0.1);
-            border: 2px solid #e74c3c;
-            color: #e74c3c;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            text-align: center;
-        }
-
         /* Responsive Design */
         @media (max-width: 768px) {
             .container {
-                padding: 10px;
+                padding: 0;
             }
 
             .header h1 {
-                font-size: 2.2em;
+                font-size: 2.2rem;
             }
 
             .main-content {
@@ -457,18 +506,35 @@
                 gap: 15px;
             }
 
+            .question-text {
+                font-size: 1.1rem;
+            }
+
+            .option {
+                padding: 14px 20px;
+            }
+
             .score-details {
                 flex-direction: column;
                 gap: 20px;
             }
+        }
 
-            .question-text {
-                font-size: 1.1em;
-            }
+        /* Progress bar */
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: #e1e8ed;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
 
-            .option {
-                padding: 15px 20px;
-            }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 4px;
+            transition: width 0.3s ease;
         }
     </style>
 </head>
@@ -493,20 +559,24 @@
                         <label for="question-count">Number of Questions:</label>
                         <select id="question-count" required>
                             <option value="5">5 Questions</option>
-                            <option value="10">10 Questions</option>
+                            <option value="10" selected>10 Questions</option>
                             <option value="15">15 Questions</option>
                             <option value="20">20 Questions</option>
                         </select>
                     </div>
                     
                     <button type="submit" class="start-quiz-btn">
-                        <span>Start Quiz</span>
+                        Start Quiz
                     </button>
                 </form>
             </div>
 
             <!-- Quiz Active -->
             <div id="quiz-active" class="quiz-active">
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+
                 <div class="quiz-header">
                     <div class="quiz-info">
                         <div class="info-item">
@@ -516,6 +586,10 @@
                         <div class="info-item">
                             <span class="info-value" id="total-questions">10</span>
                             <span class="info-label">Total</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-value" id="score-display">0</span>
+                            <span class="info-label">Score</span>
                         </div>
                     </div>
                     <div class="timer" id="timer">30</div>
@@ -535,20 +609,22 @@
             <div id="results" class="results">
                 <h2 class="results-title">Quiz Complete!</h2>
                 <div class="score-display" id="final-score">0/10</div>
+                
                 <div class="score-details">
                     <div class="score-item">
                         <div class="score-item-value" id="correct-answers">0</div>
-                        <div class="score-item-label">Correct</div>
+                        <div class="score-item-label">Correct Answers</div>
                     </div>
                     <div class="score-item">
                         <div class="score-item-value" id="incorrect-answers">0</div>
-                        <div class="score-item-label">Incorrect</div>
+                        <div class="score-item-label">Incorrect Answers</div>
                     </div>
                     <div class="score-item">
                         <div class="score-item-value" id="accuracy">0%</div>
                         <div class="score-item-label">Accuracy</div>
                     </div>
                 </div>
+                
                 <button class="restart-btn" onclick="restartQuiz()">Take Another Quiz</button>
             </div>
         </div>
@@ -572,12 +648,26 @@
             questionCount = parseInt(document.getElementById('question-count').value);
             
             if (!bookVerse) {
-                alert('Please enter a book or verse');
+                showError('Please enter a book or verse');
                 return;
             }
             
             await startQuiz();
         });
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.innerHTML = `<p>${message}</p>`;
+            
+            const setupForm = document.getElementById('setup-form');
+            setupForm.insertBefore(errorDiv, setupForm.firstChild);
+            
+            setTimeout(() => {
+                errorDiv.style.opacity = '0';
+                setTimeout(() => errorDiv.remove(), 300);
+            }, 3000);
+        }
 
         async function startQuiz() {
             document.getElementById('quiz-setup').style.display = 'none';
@@ -595,17 +685,24 @@
             try {
                 await generateQuestions();
                 document.getElementById('loading').style.display = 'none';
+                updateProgressBar();
                 displayQuestion();
                 startTimer();
             } catch (error) {
+                console.error('Error:', error);
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('question-container').innerHTML = `
                     <div class="error">
-                        <p>Error generating questions. Please try again.</p>
+                        <p>Error generating questions. Please try again with a different book or verse.</p>
                         <button class="restart-btn" onclick="restartQuiz()">Try Again</button>
                     </div>
                 `;
             }
+        }
+
+        function updateProgressBar() {
+            const progress = ((currentQuestionIndex) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
         }
 
         async function generateQuestions() {
@@ -649,6 +746,11 @@ The "correct" field should be the index (0-3) of the correct answer. Make sure q
                     throw new Error('No questions generated');
                 }
                 
+                // Ensure we don't have more questions than requested
+                if (questions.length > questionCount) {
+                    questions = questions.slice(0, questionCount);
+                }
+                
             } catch (error) {
                 console.error('Error generating questions:', error);
                 throw error;
@@ -663,7 +765,8 @@ The "correct" field should be the index (0-3) of the correct answer. Make sure q
 
             const question = questions[currentQuestionIndex];
             document.getElementById('current-question').textContent = currentQuestionIndex + 1;
-            // Remove score display during quiz - only show at end
+            document.getElementById('score-display').textContent = score;
+            updateProgressBar();
             
             const questionHTML = `
                 <div class="question-card">
@@ -706,6 +809,7 @@ The "correct" field should be the index (0-3) of the correct answer. Make sure q
                 correctStreak = 0;
             } else {
                 score++;
+                document.getElementById('score-display').textContent = score;
                 correctStreak++;
                 
                 // Decrease timer for consecutive correct answers
@@ -722,12 +826,6 @@ The "correct" field should be the index (0-3) of the correct answer. Make sure q
                     startTimer();
                 }
             }, 1500);
-        }
-
-        function nextQuestion() {
-            currentQuestionIndex++;
-            displayQuestion();
-            startTimer();
         }
 
         function startTimer() {
