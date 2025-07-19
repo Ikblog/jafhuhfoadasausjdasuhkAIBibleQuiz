@@ -23,6 +23,138 @@
             padding: 0;
         }
 
+        /* Splash screen styles */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #343541;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+        }
+
+        .splash-content {
+            text-align: center;
+            padding: 20px;
+            max-width: 80%;
+        }
+
+        .splash-logo {
+            font-size: 48px;
+            color: #19c37d;
+            margin-bottom: 20px;
+        }
+
+        .splash-title {
+            font-size: 32px;
+            font-weight: 600;
+            color: #ececf1;
+            margin-bottom: 16px;
+        }
+
+        .splash-subtitle {
+            font-size: 16px;
+            color: #8e8ea0;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .splash-button {
+            background: #10a37f;
+            color: white;
+            border: none;
+            border-radius: 24px;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(16, 163, 127, 0.2);
+        }
+
+        .splash-button:hover {
+            background: #0d8f6c;
+            transform: translateY(-2px);
+        }
+
+        .splash-button:active {
+            transform: translateY(0);
+        }
+
+        /* Connection error dialog */
+        .connection-dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .connection-dialog.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .dialog-content {
+            background: #40414f;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 80%;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            border: 1px solid #565869;
+        }
+
+        .dialog-icon {
+            font-size: 48px;
+            color: #f04747;
+            margin-bottom: 16px;
+        }
+
+        .dialog-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #ececf1;
+        }
+
+        .dialog-message {
+            font-size: 16px;
+            color: #8e8ea0;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .dialog-button {
+            background: #10a37f;
+            color: white;
+            border: none;
+            border-radius: 24px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dialog-button:hover {
+            background: #0d8f6c;
+        }
+
         .container {
             display: flex;
             flex-direction: column;
@@ -33,6 +165,12 @@
             overflow: hidden;
             position: relative;
             box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .container.active {
+            opacity: 1;
         }
 
         .header {
@@ -456,7 +594,32 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Splash Screen -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="splash-content">
+            <div class="splash-logo">
+                <i class="fas fa-robot"></i>
+            </div>
+            <h1 class="splash-title">Welcome to HelpGPT</h1>
+            <p class="splash-subtitle">Your AI-powered assistant for all your questions and creative needs</p>
+            <button class="splash-button" id="startChatButton">Let's Chat</button>
+        </div>
+    </div>
+
+    <!-- Connection Error Dialog -->
+    <div class="connection-dialog" id="connectionDialog">
+        <div class="dialog-content">
+            <div class="dialog-icon">
+                <i class="fas fa-wifi"></i>
+            </div>
+            <h2 class="dialog-title">No Internet Connection</h2>
+            <p class="dialog-message">Please check your internet connection and try again to use HelpGPT.</p>
+            <button class="dialog-button" id="tryAgainButton">Try Again</button>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="container" id="appContainer">
         <div class="header">
             <div class="header-left">
                 <button class="menu-button" id="menuButton">
@@ -518,6 +681,11 @@
 
     <script>
         // DOM Elements
+        const splashScreen = document.getElementById('splashScreen');
+        const startChatButton = document.getElementById('startChatButton');
+        const connectionDialog = document.getElementById('connectionDialog');
+        const tryAgainButton = document.getElementById('tryAgainButton');
+        const appContainer = document.getElementById('appContainer');
         const sendButton = document.getElementById("sendButton");
         const chatInput = document.getElementById('chatInput');
         const chatbox = document.getElementById('chatbox');
@@ -535,6 +703,21 @@
 
         // Local storage key
         const CHAT_STORAGE_KEY = 'chatGPT_mobile_conversation';
+
+        // Check internet connection
+        function checkInternetConnection() {
+            return navigator.onLine;
+        }
+
+        // Show connection error dialog
+        function showConnectionError() {
+            connectionDialog.classList.add('active');
+        }
+
+        // Hide connection error dialog
+        function hideConnectionError() {
+            connectionDialog.classList.remove('active');
+        }
 
         // Initialize chat from localStorage
         function initializeChat() {
@@ -728,7 +911,35 @@
             chatInput.focus();
         }
 
+        // Start the app (hide splash screen and show main app)
+        function startApp() {
+            if (!checkInternetConnection()) {
+                showConnectionError();
+                return;
+            }
+
+            // Hide splash screen
+            splashScreen.style.opacity = '0';
+            setTimeout(() => {
+                splashScreen.style.display = 'none';
+                // Show main app
+                appContainer.classList.add('active');
+                initializeChat();
+            }, 500);
+        }
+
         // Event Listeners
+        startChatButton.addEventListener('click', startApp);
+
+        tryAgainButton.addEventListener('click', () => {
+            hideConnectionError();
+            if (checkInternetConnection()) {
+                startApp();
+            } else {
+                showConnectionError();
+            }
+        });
+
         sendButton.addEventListener('click', sendMessage);
 
         chatInput.addEventListener('keypress', (e) => {
@@ -757,8 +968,19 @@
         // New chat button
         newChatButton.addEventListener('click', clearChat);
 
-        // Initialize chat when page loads
-        document.addEventListener('DOMContentLoaded', initializeChat);
+        // Check for internet connection changes
+        window.addEventListener('online', () => {
+            if (connectionDialog.classList.contains('active')) {
+                hideConnectionError();
+                startApp();
+            }
+        });
+
+        window.addEventListener('offline', () => {
+            if (!splashScreen.style.display || splashScreen.style.display === 'none') {
+                showConnectionError();
+            }
+        });
     </script>
 </body>
 </html>
