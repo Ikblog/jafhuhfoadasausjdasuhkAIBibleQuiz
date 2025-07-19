@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HelpGPT Mobile</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #343541;
+            color: #ececf1;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100%;
+            max-width: 480px;
+            background: #343541;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+
+        /* Splash Screen Styles */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #343541 0%, #343541 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+        }
+
+        .splash-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .splash-logo {
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            animation: pulse 2s infinite;
+        }
+
+        .splash-logo i {
+            font-size: 60px;
+            color: white;
+        }
+
+        .splash-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .splash-subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 40px;
+            text-align: center;
+            max-width: 300px;
+            line-height: 1.5;
+        }
+
+        .lets-chat-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 16px 40px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .lets-chat-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .lets-chat-button:active {
+            transform: translateY(0);
+        }
+
+        /* Offline Dialog Styles */
+        .offline-dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .offline-dialog.show {
+            display: flex;
+        }
+
+        .dialog-content {
+            background: #40414f;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 350px;
+            width: 90%;
+            text-align: center;
+            border: 1px solid #565869;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .dialog-icon {
+            width: 80px;
+            height: 80px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .dialog-icon i {
+            font-size: 40px;
+            color: white;
+        }
+
+        .dialog-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #ececf1;
+            margin-bottom: 10px;
+        }
+
+        .dialog-message {
+            font-size: 16px;
+            color: #8e8ea0;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .dialog-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .dialog-button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        .dialog-button.primary {
+            background: #10a37f;
+            color: white;
+        }
+
+        .dialog-button.primary:hover {
+            background: #0d8f6c;
+            transform: translateY(-1px);
+        }
+
+        .dialog-button.secondary {
+            background: transparent;
+            color: #8e8ea0;
+            border: 1px solid #565869;
+        }
+
+        .dialog-button.secondary:hover {
+            background: #565869;
+            color: #ececf1;
+        }
+
+        /* Loading Animation */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 20px rgba(255, 255, 255, 0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+            }
+        }
+
+        .header {
+            background: #343541;
+            color: #ececf1;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #565869;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-button, .header-button {
+            background: none;
+            border: none;
+            color: #ececf1;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .menu-button:hover, .header-button:hover {
+            background: #40414f;
+        }
+
+        .header-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ececf1;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .chatbox {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            padding: 12px;
+            scroll-behavior: smooth;
+            background: #343541;
+        }
+
+        .chatbox::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chatbox::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chatbox::-webkit-scrollbar-thumb {
+            background: #565869;
+            border-radius: 4px;
+        }
+
+        .chat-message {
+            padding: 8px 0;
+            word-wrap: break-word;
+            animation: slideUp 0.3s ease-out;
+            position: relative;
+            font-size: 15px;
+            line-height: 1.6;
+            max-width: 85%;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background: #10a37f;
+            color: white;
+            border-radius: 18px 18px 0 18px;
+            padding: 12px 16px;
+            margin: 4px 0;
+        }
+
+        .assistant-message {
+            align-self: flex-start;
+            background: #444654;
+            color: #ececf1;
+            border-radius: 18px 18px 18px 0;
+            padding: 12px 16px;
+            margin: 4px 0;
+        }
+
+        .message-content {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            flex-shrink: 0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .user-avatar {
+            background: #10a37f;
+            color: white;
+        }
+
+        .assistant-avatar {
+            background: #19c37d;
+            color: white;
+        }
+
+        .message-wrapper {
+            display: flex;
+            align-items: flex-start;
+            max-width: 100%;
+        }
+
+        .message-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .input-area {
+            padding: 16px 20px;
+            background: #343541;
+            border-top: 1px solid #565869;
+            position: relative;
+        }
+
+        .input-container {
+            position: relative;
+            background: #40414f;
+            border-radius: 24px;
+            border: 1px solid #565869;
+            transition: all 0.2s;
+        }
+
+        .input-container:focus-within {
+            border-color: #10a37f;
+            box-shadow: 0 0 0 2px rgba(16, 163, 127, 0.2);
+        }
+
+        .input-area input {
+            width: 100%;
+            padding: 12px 50px 12px 16px;
+            border: none;
+            border-radius: 24px;
+            font-size: 16px;
+            background: transparent;
+            outline: none;
+            color: #ececf1;
+            resize: none;
+            max-height: 120px;
+        }
+
+        .input-area input::placeholder {
+            color: #8e8ea0;
+        }
+
+        .input-area input:disabled {
+            background: #40414f;
+            color: #8e8ea0;
+            cursor: not-allowed;
+        }
+
+        .send-button {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 8px;
+            border: none;
+            border-radius: 50%;
+            background: #10a37f;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            width: 32px;
+            height: 32px;
+        }
+
+        .send-button:hover:not(:disabled) {
+            background: #0d8f6c;
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        .send-button:disabled {
+            background: #565869;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .send-button i {
+            font-size: 14px;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 16px 20px;
+            background: #343541;
+            align-self: flex-start;
+        }
+
+        .typing-wrapper {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            margin-left: 44px;
+        }
+
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #8e8ea0;
+            animation: bounce 1.4s infinite;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .welcome-message {
+            text-align: center;
+            color: #8e8ea0;
+            font-size: 14px;
+            padding: 40px 20px;
+            background: #343541;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .welcome-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #ececf1;
+            margin-bottom: 8px;
+        }
+
+        .welcome-subtitle {
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .example-prompts {
+            display: grid;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .example-prompt {
+            background: #40414f;
+            border: 1px solid #565869;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 14px;
+            color: #ececf1;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .example-prompt:hover {
+            background: #4a4b5c;
+            border-color: #10a37f;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 12px;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            object-fit: contain;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 20px;
+            text-align: center;
+            color: #8e8ea0;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: #565869;
+        }
+
+        .menu-dropdown {
+            position: absolute;
+            top: 60px;
+            left: 10px;
+            background: #40414f;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 100;
+            display: none;
+            min-width: 200px;
+            overflow: hidden;
+            border: 1px solid #565869;
+        }
+
+        .menu-dropdown.show {
+            display: block;
+        }
+
+        .menu-item {
+            padding: 12px 16px;
+            color: #ececf1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.2s;
+        }
+
+        .menu-item:hover {
+            background: #4a4b5c;
+        }
+
+        .menu-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .menu-divider {
+            height: 1px;
+            background: #565869;
+            margin: 4px 0;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-4px);
+            }
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 768px;
+                height: 95vh;
+                border-radius: 12px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            }
+
+            body {
+                padding: 20px;
+                background: #202123;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 8px 12px;
+            }
+
+            .input-area {
+                padding: 12px 16px;
+            }
+
+            .chat-message {
+                max-width: 90%;
+            }
+
+            .splash-title {
+                font-size: 28px;
+            }
+
+            .splash-subtitle {
+                font-size: 14px;
+                max-width: 280px;
+            }
+
+            .lets-chat-button {
+                padding: 14px 32px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="splash-logo">
+            <i class="fas fa-comments"></i>
+        </div>
+        <h1 class="splash-title">HelpGPT</h1>
+        <p class="splash-subtitle">Your AI-powered assistant ready to help with anything you need</p>
+        <button class="lets-chat-button" id="letsChatButton">
+            Let's Chat
+        </button>
+    </div>
+
+    <!-- Offline Dialog -->
+    <div class="offline-dialog" id="offlineDialog">
+        <div class="dialog-content">
+            <div class="dialog-icon">
+                <i class="fas fa-wifi"></i>
+            </div>
+            <h2 class="dialog-title">No Internet Connection</h2>
+            <p class="dialog-message">Please check your internet connection and try again. You need to be online to use HelpGPT.</p>
+            <div class="dialog-buttons">
+                <button class="dialog-button primary" id="retryButton">Try Again</button>
+                <button class="dialog-button secondary" id="closeDialogButton">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Chat Interface -->
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <button class="menu-button" id="menuButton">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <span class="header-title">HelpGPT</span>
+            </div>
+            <div class="header-right">
+                <button class="header-button" id="newChatButton">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="menu-dropdown" id="menuDropdown">
+            <div class="menu-item" id="clearChatOption">
+                <i class="fas fa-trash-alt"></i>
+                <span>Clear conversation</span>
+            </div>
+            <div class="menu-divider"></div>
+            <div class="menu-item" id="exportChatOption">
+                <i class="fas fa-download"></i>
+                <span>Export chat</span>
+            </div>
+            <div class="menu-item" id="darkModeOption">
+                <i class="fas fa-moon"></i>
+                <span>Dark mode</span>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div id="chatbox" class="chatbox">
+                <!-- Messages will be loaded here from localStorage -->
+            </div>
+
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="typing-wrapper">
+                    <div class="message-avatar assistant-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <div class="input-container">
+                    <input id="chatInput" type="text" placeholder="Message ChatGPT..." autocomplete="off" />
+                    <button id="sendButton" class="send-button">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const splashScreen = document.getElementById('splashScreen');
+        const letsChatButton = document.getElementById('letsChatButton');
+        const offlineDialog = document.getElementById('offlineDialog');
+        const retryButton = document.getElementById('retryButton');
+        const closeDialogButton = document.getElementById('closeDialogButton');
+        const sendButton = document.getElementById("sendButton");
+        const chatInput = document.getElementById('chatInput');
+        const chatbox = document.getElementById('chatbox');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const menuButton = document.getElementById('menuButton');
+        const menuDropdown = document.getElementById('menuDropdown');
+        const newChatButton = document.getElementById('newChatButton');
+        const clearChatOption = document.getElementById('clearChatOption');
+        const exportChatOption = document.getElementById('exportChatOption');
+        const darkModeOption = document.getElementById('darkModeOption');
+
+        // API endpoints
+        const TEXT_API_URL = 'https://backend.buildpicoapps.com/aero/run/llm-api?pk=v1-Z0FBQUFBQm5HUEtMSjJkakVjcF9IQ0M0VFhRQ0FmSnNDSHNYTlJSblE0UXo1Q3RBcjFPcl9YYy1OZUhteDZWekxHdWRLM1M1alNZTkJMWEhNOWd4S1NPSDBTWC12M0U2UGc9PQ==';
+        const IMAGE_API_URL = 'https://backend.buildpicoapps.com/aero/run/image-generation-api?pk=v1-Z0FBQUFBQm5HUEtMSjJkakVjcF9IQ0M0VFhRQ0FmSnNDSHNYTlJSblE0UXo1Q3RBcjFPcl9YYy1OZUhteDZWekxHdWRLM1M1alNZTkJMWEhNOWd4S1NPSDBTWC12M0U2UGc9PQ==';
+
+        // Local storage key
+        const CHAT_STORAGE_KEY = 'chatGPT_mobile_conversation';
+
+        // Check internet connectivity
+        async function checkInternetConnection() {
+            try {
+                const response = await fetch('https://www.google.com/favicon.ico', {
+                    method: 'HEAD',
+                    mode: 'no-cors',
+                    cache: 'no-cache'
+                });
+                return true;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        // Show offline dialog
+        function showOfflineDialog() {
+            offlineDialog.classList.add('show');
+        }
+
+        // Hide offline dialog
+        function hideOfflineDialog() {
+            offlineDialog.classList.remove('show');
+        }
+
+        // Hide splash screen and show main app
+        function hideSplashScreen() {
+            splashScreen.classList.add('hidden');
+            setTimeout(() => {
+                splashScreen.style.display = 'none';
+            }, 500);
+        }
+
+        // Handle "Let's Chat" button click
+        async function handleLetsChatClick() {
+            const isOnline = await checkInternetConnection();
+            
+            if (isOnline) {
+                hideSplashScreen();
+                initializeChat();
+                chatInput.focus();
+            } else {
+                showOfflineDialog();
+            }
+        }
+
+        // Handle retry button click
+        async function handleRetryClick() {
+            const isOnline = await checkInternetConnection();
+            
+            if (isOnline) {
+                hideOfflineDialog();
+                hideSplashScreen();
+                initializeChat();
+                chatInput.focus();
+            } else {
+                // Keep dialog open if still offline
+                console.log('Still offline, keeping dialog open');
+            }
+        }
+
+        // Initialize chat from localStorage
+        function initializeChat() {
+            const savedChat = localStorage.getItem(CHAT_STORAGE_KEY);
+            if (savedChat) {
+                chatbox.innerHTML = savedChat;
+                chatbox.scrollTop = chatbox.scrollHeight;
+            } else {
+                showWelcomeMessage();
+            }
+        }
+
+        // Save chat to localStorage
+        function saveChatToStorage() {
+            localStorage.setItem(CHAT_STORAGE_KEY, chatbox.innerHTML);
+        }
+
+        // Show welcome message
+        function showWelcomeMessage() {
+            chatbox.innerHTML = `
+                <div class="welcome-message">
+                    <div class="welcome-title">How can I help you today?</div>
+                    <div class="welcome-subtitle">I'm HelpGPT, I can help with writing, analysis, math, coding, and more.</div>
+
+                    <div class="example-prompts">
+                        <div class="example-prompt" onclick="useExample('Explain quantum computing in simple terms')">
+                            Explain quantum computing in simple terms
+                        </div>
+                        <div class="example-prompt" onclick="useExample('Write a poem about nature')">
+                            Write a poem about nature
+                        </div>
+                        
+                    </div>
+                </div>
+            `;
+        }
+
+        // Clear chat and show welcome message
+        function clearChat() {
+            chatbox.innerHTML = '';
+            showWelcomeMessage();
+            localStorage.removeItem(CHAT_STORAGE_KEY);
+            chatInput.focus();
+        }
+
+        // Export chat as text
+        function exportChat() {
+            let chatText = '';
+            const messages = chatbox.querySelectorAll('.chat-message');
+            
+            messages.forEach(msg => {
+                const isUser = msg.classList.contains('user-message');
+                const content = msg.querySelector('.message-content').textContent;
+                chatText += `${isUser ? 'You' : 'Assistant'}: ${content}\n\n`;
+            });
+
+            const blob = new Blob([chatText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'chatGPT_conversation.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Toggle dark mode (placeholder for future implementation)
+        function toggleDarkMode() {
+            // This is a placeholder - you would implement actual dark mode toggling here
+            alert('Dark mode toggle would be implemented here');
+        }
+
+        function showTypingIndicator() {
+            typingIndicator.style.display = 'block';
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            typingIndicator.style.display = 'none';
+        }
+
+        function clearWelcomeMessage() {
+            const welcomeMsg = document.querySelector('.welcome-message');
+            if (welcomeMsg) {
+                welcomeMsg.remove();
+            }
+        }
+
+        function displayMessage(message, isUser, imageUrl = null) {
+            clearWelcomeMessage();
+
+            // Check if chatbox is empty (no welcome message and no messages)
+            if (chatbox.children.length === 0) {
+                chatbox.innerHTML = '';
+            }
+
+            const msgElem = document.createElement('div');
+            msgElem.className = `chat-message ${isUser ? 'user-message' : 'assistant-message'}`;
+
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+
+            if (imageUrl) {
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.alt = 'Generated image';
+                img.className = 'image-preview';
+                messageContent.appendChild(img);
+                if (message) {
+                    const textNode = document.createElement('p');
+                    textNode.textContent = message;
+                    messageContent.appendChild(textNode);
+                }
+            } else {
+                messageContent.textContent = message;
+            }
+
+            msgElem.appendChild(messageContent);
+
+            if (!isUser) {
+                hideTypingIndicator();
+            }
+
+            chatbox.appendChild(msgElem);
+            chatbox.scrollTop = chatbox.scrollHeight;
+            
+            // Save to localStorage after each message
+            saveChatToStorage();
+        }
+
+        async function callApi(apiUrl, prompt) {
+            // Check internet connection before making API call
+            const isOnline = await checkInternetConnection();
+            if (!isOnline) {
+                showOfflineDialog();
+                return;
+            }
+
+            showTypingIndicator();
+            chatInput.disabled = true;
+            sendButton.disabled = true;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({prompt})
+                });
+
+                const data = await response.json();
+
+                chatInput.disabled = false;
+                sendButton.disabled = false;
+                chatInput.focus();
+
+                return data;
+            } catch (error) {
+                hideTypingIndicator();
+                chatInput.disabled = false;
+                sendButton.disabled = false;
+                chatInput.focus();
+                
+                // Check if error is due to network issues
+                const isOnline = await checkInternetConnection();
+                if (!isOnline) {
+                    showOfflineDialog();
+                } else {
+                    throw error;
+                }
+            }
+        }
+
+        function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message || chatInput.disabled) return;
+
+            displayMessage(message, true);
+            chatInput.value = '';
+
+            const isImageRequest = message.toLowerCase().startsWith('/image');
+            const apiUrl = isImageRequest ? IMAGE_API_URL : TEXT_API_URL;
+            const cleanedPrompt = isImageRequest ? message.substring(6).trim() : message;
+
+            callApi(apiUrl, cleanedPrompt)
+                .then(data => {
+                    if (data && data.status === 'success') {
+                        if (isImageRequest) {
+                            displayMessage(data.text, false, data.imageUrl);
+                        } else {
+                            displayMessage(data.text, false);
+                        }
+                    } else if (data) {
+                        displayMessage('I apologize, but I encountered an error. Please try again.', false);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    displayMessage('I apologize, but I encountered an error. Please check your connection and try again.', false);
+                });
+        }
+
+        function useExample(text) {
+            chatInput.value = text;
+            chatInput.focus();
+        }
+
+        // Event Listeners for splash screen and offline dialog
+        letsChatButton.addEventListener('click', handleLetsChatClick);
+        retryButton.addEventListener('click', handleRetryClick);
+        closeDialogButton.addEventListener('click', hideOfflineDialog);
+
+        // Event Listeners for main chat functionality
+        sendButton.addEventListener('click', sendMessage);
+
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Toggle menu dropdown
+        menuButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            menuDropdown.classList.toggle('show');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', () => {
+            menuDropdown.classList.remove('show');
+        });
+
+        // Menu options
+        clearChatOption.addEventListener('click', clearChat);
+        exportChatOption.addEventListener('click', exportChat);
+        darkModeOption.addEventListener('click', toggleDarkMode);
+
+        // New chat button
+        newChatButton.addEventListener('click', clearChat);
+
+        // Close offline dialog when clicking outside
+        offlineDialog.addEventListener('click', (e) => {
+            if (e.target === offlineDialog) {
+                hideOfflineDialog();
+            }
+        });
+
+        // Initialize app - show splash screen first
+        document.addEventListener('DOMContentLoaded', () => {
+            // Splash screen is shown by default
+            console.log('App initialized with splash screen');
+        });
+    </script>
+</body>
+</html>
+
